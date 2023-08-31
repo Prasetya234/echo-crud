@@ -3,43 +3,76 @@ package controller
 import (
 	"crud_echo/pkg/domain"
 	"crud_echo/pkg/dto"
-	"crud_echo/shared/response"
+	"crud_echo/shared/util"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
 )
 
-type StudentControler struct {
+type StudentController struct {
 	StudentUsecase domain.StudentUsecase
 }
 
-func (sc *StudentControler) GetStudents(c echo.Context) error {
-	resp, err := sc.StudentUsecase.GetStudents()
+func (sc *StudentController) GetStudent(c echo.Context) error {
+	resp, err := sc.StudentUsecase.GetStudent()
 	if err != nil {
-		return response.SetResponse(c, http.StatusInternalServerError, err.Error(), nil)
+		return util.SetResponse(c, http.StatusInternalServerError, err.Error(), nil)
 	}
-	return response.SetResponse(c, http.StatusOK, "success", resp)
+	return util.SetResponse(c, http.StatusOK, "success", resp)
 }
 
-func (sc *StudentControler) GetStudent(c echo.Context) error {
+func (sc *StudentController) GetStudentById(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
-	resp, err := sc.StudentUsecase.GetStudent(id)
+	resp, err := sc.StudentUsecase.GetStudentById(id)
+
 	if err != nil {
-		return response.SetResponse(c, http.StatusNotFound, "id student not found", nil)
+		return util.SetResponse(c, http.StatusNotFound, "student id not found", nil)
 	}
-	return response.SetResponse(c, http.StatusOK, "success", resp)
+	return util.SetResponse(c, http.StatusOK, "success", resp)
 }
 
-func (sc *StudentControler) CreateStudent(c echo.Context) error {
-	var studentdto dto.StudentDTO
-	if err := c.Bind(&studentdto); err != nil {
-		return response.SetResponse(c, http.StatusBadRequest, "bad request", nil)
+func (sc *StudentController) CreateStudent(c echo.Context) error {
+	var request dto.StudentDTO
+	if err := c.Bind(&request); err != nil {
+		return util.SetResponse(c, http.StatusBadRequest, "bad request", nil)
 	}
-	if err := studentdto.Validation(); err != nil {
-		return response.SetResponse(c, http.StatusBadRequest, err.Error(), nil)
+
+	if err := request.Validation(); err != nil {
+		return util.SetResponse(c, http.StatusBadRequest, err.Error(), nil)
 	}
-	if err := sc.StudentUsecase.CreateStudent(studentdto); err != nil {
-		return response.SetResponse(c, http.StatusInternalServerError, err.Error(), nil)
+
+	if err := sc.StudentUsecase.CreateStudent(request); err != nil {
+		return util.SetResponse(c, http.StatusInternalServerError, err.Error(), nil)
 	}
-	return response.SetResponse(c, http.StatusOK, "success", nil)
+	return util.SetResponse(c, http.StatusOK, "success", nil)
+}
+
+func (sc *StudentController) UpdateStudent(c echo.Context) error {
+	var request dto.StudentDTO
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	if err := c.Bind(&request); err != nil {
+		return util.SetResponse(c, http.StatusBadRequest, "bad request", nil)
+	}
+
+	if err := request.Validation(); err != nil {
+		return util.SetResponse(c, http.StatusBadRequest, err.Error(), nil)
+	}
+
+	if err2 := sc.StudentUsecase.UpdateStudent(id, request); err2 != nil {
+		return util.SetResponse(c, http.StatusInternalServerError, err2.Error(), nil)
+	}
+	return util.SetResponse(c, http.StatusOK, "success", nil)
+}
+
+func (sc *StudentController) DeleteStudent(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	_, err := sc.StudentUsecase.GetStudentById(id)
+	if err != nil {
+		return util.SetResponse(c, http.StatusNotFound, "id not found", nil)
+	}
+	if err := sc.StudentUsecase.DeleteStudentById(id); err != nil {
+		return util.SetResponse(c, http.StatusInternalServerError, err.Error(), nil)
+	}
+	return util.SetResponse(c, http.StatusOK, "success", nil)
 }

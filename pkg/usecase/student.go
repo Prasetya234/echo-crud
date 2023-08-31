@@ -7,25 +7,39 @@ import (
 )
 
 type StudentUsecase struct {
-	StudentRepository domain.StudentRepository
+	studentRepository domain.StudentRepository
 }
 
 func NewStudentUsecase(studentRepository domain.StudentRepository) domain.StudentUsecase {
 	return &StudentUsecase{
-		StudentRepository: studentRepository,
+		studentRepository: studentRepository,
 	}
 }
 
-func (su StudentUsecase) GetStudents() ([]domain.Student, error) {
-	return su.StudentRepository.GetStudents()
-}
-
-func (su StudentUsecase) CreateStudent(req dto.StudentDTO) error {
+func (s StudentUsecase) CreateStudent(req dto.StudentDTO) error {
 	var student domain.Student
-	mapstructure.Decode(req, &student)
-	return su.StudentRepository.CreateStudent(student)
+	if err := mapstructure.Decode(req, &student); err != nil {
+		return err
+	}
+	return s.studentRepository.CreateStudent(student)
 }
 
-func (su StudentUsecase) GetStudent(id int) (domain.Student, error) {
-	return su.StudentRepository.GetStudent(id)
+func (s StudentUsecase) UpdateStudent(id int, req dto.StudentDTO) error {
+	var student domain.Student
+	if err := mapstructure.Decode(req, &student); err != nil {
+		return err
+	}
+	return s.studentRepository.UpdateStudent(id, student)
+}
+
+func (s StudentUsecase) GetStudent() ([]domain.Student, error) {
+	return s.studentRepository.GetStudent()
+}
+
+func (s StudentUsecase) GetStudentById(id int) (domain.Student, error) {
+	return s.studentRepository.GetStudentById(id)
+}
+
+func (s StudentUsecase) DeleteStudentById(id int) error {
+	return s.studentRepository.DeleteStudentById(id)
 }

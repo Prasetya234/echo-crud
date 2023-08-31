@@ -13,13 +13,17 @@ type Student struct {
 }
 
 type StudentRepository interface {
-	GetStudents() ([]Student, error)
-	GetStudent(id int) (Student, error)
 	CreateStudent(req Student) error
+	UpdateStudent(id int, req Student) error
+	GetStudent() ([]Student, error)
+	GetStudentById(id int) (Student, error)
+	DeleteStudentById(id int) error
 }
 
 type StudentUsecase interface {
-	GetStudents() ([]Student, error)
-	GetStudent(id int) (Student, error)
 	CreateStudent(req dto.StudentDTO) error
+	UpdateStudent(id int, req dto.StudentDTO) error
+	GetStudent() ([]Student, error)
+	GetStudentById(id int) (Student, error)
+	DeleteStudentById(id int) error
 }
