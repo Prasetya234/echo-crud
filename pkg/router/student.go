@@ -14,6 +14,7 @@ func NewStudentRouter(e *echo.Echo, g *echo.Group, db *sql.DB) {
 	sc := &controller.StudentController{
 		StudentUsecase: su,
 	}
+
 	e.GET("/student", sc.GetStudent)
 	e.GET("/student/:id", sc.GetStudentById)
 	e.POST("/student", sc.CreateStudent)
